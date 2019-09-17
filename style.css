@@ -1,0 +1,71 @@
+* {
+    box-sizing: border-box;
+    font-family: sans-serif;    
+}
+
+body {
+    margin: 0;
+}
+
+.hero {
+    text-align: center;
+}
+
+.flex {
+    display: flex;
+    justify-content: center;    
+}
+
+form {
+    max-width: 600px;
+}
+
+fieldset {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    border: none;
+}
+
+input, button {
+    margin: 10px auto;
+    padding: 5px;  
+}
+
+.container {
+    border: solid 1px black;
+    text-align: center;
+}
+
+.status-container {
+    flex-direction: column;
+    color: #333;
+}
+
+.game-container, .tweet-container {
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 10px;
+}
+
+.singleGame, .singleTweet {
+    width: 100%;
+    padding: 5px;
+}
+
+.footer {
+    background: #333;
+    color: #fff;
+    justify-content: space-around; 
+    align-items: center;
+    width: 100%;
+    padding: 5px 0;
+}
+
+.footNote {
+    font-size: 14px;    
+}
+
+.social-icon {
+    width: 20px;
+}

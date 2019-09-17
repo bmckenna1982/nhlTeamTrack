@@ -9,31 +9,62 @@
 </head>
 <body>
     <main>
-        <header>
+        <header class="hero">
             <h1>Track your favorite NHL team</h1>
-            <p>To see a team's latest scores and tweets input the team name and click the track button.</p>
+            <h2>See any NHL team's previous and upcoming games</h2>
         </header>
-        <section>
-            <form action="#">
-                <label for=""></label>
-                <input type="text">
-                <button></button>
+        <section class="search-container flex">
+            <form class="search-form" action="#">
+                <fieldset>
+                    <label class="flex" for="team">Enter an NHL team name and click track team</label>
+                    <input id="team" name="textfield" type="text" value="Blackhawks" required>
+                    <button class="submit-button" type="submit">Track team</button>
+                </fieldset>
             </form>
+        </section>        
+        <section class="status-container container flex">
+            <h3>Error</h3>
+            <p class="error">Error text goes here</p>
+        </section>        
+        <section class="game-container container flex">
+            <div class="singleGame container">
+                <div class="away">Away Team Name & score</div>
+                <div class="vs">VS</div>
+                <div class="home">Home Team Name & score</div>
+            </div>                                
+            <div class="singleGame container">
+                <div class="away">Away Team Name & score</div>
+                <div class="vs">VS</div>
+                <div class="home">Home Team Name & score</div>
+            </div>                                
+            <div class="singleGame container">
+                <div class="away">Away Team Name & score</div>
+                <div class="vs">VS</div>
+                <div class="home">Home Team Name & score</div>
+            </div>                                
         </section>
-        <section class="results-container">
-            <section class="game-container flex">
-                <div class="game1"></div>
-                <div class="game2"></div>
-                <div class="game3"></div>                
-            </section>
-            <section class="tweet-container flex">
-                <div class="tweet1"></div>
-                <div class="tweet2"></div>
-                <div class="tweet3"></div>
-            </section>
+        <section class="tweet-container container flex">
+            <div class="singleTweet container" id="tweet1">
+                <div class="identification">Chicago Blackhawks @NHLBlackhawks</div>
+                <p>Tweet contents</p>
+            </div>
+            <div class="singleTweet container" id="tweet2">
+                    <div class="identification">Chicago Blackhawks @NHLBlackhawks</div>
+                    <p>Tweet contents</p>
+                </div>
+            <div class="singleTweet container" id="tweet3">
+                    <div class="identification">Chicago Blackhawks @NHLBlackhawks</div>
+                    <p>Tweet contents</p>
+                </div>
         </section>
     </main>
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="index.js"></script>
+    <footer class="footer flex">
+        <div class="footNote">Built by: Brian McKenna ©2019</div>        
+        <a href="https://www.linkedin.com/in/brian-mckenna-dev/" target="_blank"><img class="social-icon" src="images/linkedIn-logo.png" alt="linked in logo"></a>
+        <a href="https://twitter.com/bMcKenna_dev" target="_blank"><img class="social-icon" src="images/twitter-logo.png" alt="twitter logo"></a>
+        <a href="https://github.com/bmckenna1982" target="_blank"><img class="social-icon" src="images/github-logo.png" alt="github logo"></a> 
+    </footer>
 </body>
 </html>
