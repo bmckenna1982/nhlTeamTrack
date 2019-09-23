@@ -7,13 +7,22 @@ body {
     margin: 0;
 }
 
+a {
+    text-decoration: none;
+}
+
+main {
+    min-height: calc(100vh - 55px);
+}
+
 .hero {
     text-align: center;
 }
 
 .flex {
     display: flex;
-    justify-content: center;    
+    justify-content: center;
+    text-align: center;    
 }
 
 form {
@@ -29,26 +38,26 @@ fieldset {
 
 input, button {
     margin: 10px auto;
-    padding: 5px;  
+    padding: 5px;      
 }
 
 .container {
-    border: solid 1px black;
-    text-align: center;
+    border: solid 1px black;    
 }
 
 .status-container {
     flex-direction: column;
     color: #333;
+    padding: 0 5px;
 }
 
-.game-container, .tweet-container {
+.previous-container, .upcoming-container {
     justify-content: center;
     flex-wrap: wrap;
     margin: 10px;
 }
 
-.singleGame, .singleTweet {
+.singleGame, .futureGame {
     width: 100%;
     padding: 5px;
 }
@@ -58,8 +67,8 @@ input, button {
     color: #fff;
     justify-content: space-around; 
     align-items: center;
-    width: 100%;
-    padding: 5px 0;
+    width: 100%;    
+    padding: 5px 0;    
 }
 
 .footNote {
@@ -68,4 +77,21 @@ input, button {
 
 .social-icon {
     width: 20px;
+}
+
+.singleGame:hover {
+    cursor: pointer;
+}
+
+.lineScore-header {
+    justify-content: space-between;
+}
+
+.gameStatus, .team {
+    flex: 2;
+    text-align: left;
+}
+
+.period {
+    flex: 1;
 }

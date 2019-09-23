@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>NHL Team Tracker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main>
+        <header class="hero">
+            <h1>Track your favorite NHL team</h1>
+            <h2>See any NHL team's previous and upcoming games</h2>
+        </header>
+        <section class="search-container flex">
+            <form class="search-form" action="#">
+                <fieldset>
+                    <label class="flex" for="team">Enter an NHL team name and click track team</label>
+                    <input id="team" name="textfield" type="text" value="Blackhawks" required>
+                    <button class="submit-button" type="submit">Track team</button>
+                </fieldset>
+            </form>
+        </section>        
+        <section class="status-container flex">
+            <h3>Error</h3>
+            <p class="error">errorText</p>            
+        </section>        
+        <section class="previous-container flex">
+            <h3>Previous Game Results</h3>
+            <div class="singleGame container" data-gameID="">
+                <div class="away">Away Team Name & score</div>
+                <div class="vs">VS</div>
+                <div class="home">Home Team Name & score</div>
+            </div>
+            <div class="singleGame container lineScore">
+                <div class="lineScore-header flex">
+                    <div class="gameStatus">Final/SO</div>
+                    <div class="period">1</div>
+                    <div class="period">2</div>
+                    <div class="period">3</div>
+                    <div class="period">SO</div>
+                    <div class="period">Total</div>
+                </div>
+                <hr class="header-line">
+                <div class="lineScore-container">
+                    <div class="lineScore-away flex">
+                        <div class="team">Panthers</div>
+                            <div class="period">1</div>
+                            <div class="period">2</div>
+                            <div class="period">1</div>
+                            <div class="overTime">0 (1-2)</div>
+                            <div class="period total">4</div>
+                        </div>
+                    </div>  
+                    <hr class="team-line">
+                    <div class="lineScore-home flex">
+                        <div class="team">Canadiens</div>
+                        <div class="period">1</div>
+                        <div class="period">3</div>
+                        <div class="period">0</div>
+                        <div class="overTime">1 (3-3)</div>
+                        <div class="period total">5</div>
+                    </div>                    
+                </div>
+            </div>                                
+            <div class="singleGame container">
+                <div class="away">Away Team Name & score</div>
+                <div class="vs">VS</div>
+                <div class="home">Home Team Name & score</div>
+            </div>                                
+            <div class="singleGame container">
+                <div class="away">Away Team Name & score</div>
+                <div class="vs">VS</div>
+                <div class="home">Home Team Name & score</div>
+            </div>                                
+        </section>
+        <section class="upcoming-container flex">
+            <h3>Upcoming Game Schedule</h3>
+            <div class="singleGame container">
+                <div class="date">Date</div>
+                <div class="away">Away Team Name & score</div>
+                <div class="vs">@</div>
+                <div class="home">Home Team Name & score</div>
+            </div>                                
+            <div class="singleGame container">
+                <div class="date">Date</div>
+                <div class="away">Away Team Name & score</div>
+                <div class="vs">@</div>
+                <div class="home">Home Team Name & score</div>
+            </div>                                
+            <div class="singleGame container">
+                <div class="date">Date</div>
+                <div class="away">Away Team Name & score</div>
+                <div class="vs">@</div>
+                <div class="home">Home Team Name & score</div>
+            </div>            
+        </section>
+    </main>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="index.js"></script>
+    <footer class="footer flex">
+        <div class="footNote">Built by: Brian McKenna ©2019</div>        
+        <a href="https://www.linkedin.com/in/brian-mckenna-dev/" target="_blank"><img class="social-icon" src="images/linkedIn-logo.png" alt="linked in logo"></a>
+        <a href="https://twitter.com/bMcKenna_dev" target="_blank"><img class="social-icon" src="images/twitter-logo.png" alt="twitter logo"></a>
+        <a href="https://github.com/bmckenna1982" target="_blank"><img class="social-icon" src="images/github-logo.png" alt="github logo"></a> 
+    </footer>
+</body>
+</html>

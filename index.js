@@ -1,10 +1,12 @@
 const searchURL = 'https://statsapi.web.nhl.com/api/v1/';
 const TEAMS = [];
+const GAMES = [];
+const scoreReturn = {};
 
 function pageSetup() {
-    //call API and build team ID object
+    //call API and build team ID object    
     getTeams();
-    watchForm();
+    watchPage();
 }
 
 function getTeams() {
@@ -17,59 +19,61 @@ function getTeams() {
         })
         .then(responseJson => createTeamList(responseJson))
         .catch(err => {
-            $('.error').text(`Something went wrong: ${err.message}`);
+            displayError(err.message); 
         });
 }
 
-function createTeamList(responseJson) {
-    console.log(responseJson.teams[1])
+function createTeamList(responseJson) {    
     for (let team in responseJson.teams) {        
-        TEAMS.push({id: responseJson.teams[team].id, city: responseJson.teams[team].locationName.toLowerCase(), name: responseJson.teams[team].teamName.toLowerCase()})
-    }; 
-    console.log(TEAMS);
+        TEAMS.push({
+            id: responseJson.teams[team].id, 
+            city: responseJson.teams[team].locationName.toLowerCase(), 
+            name: responseJson.teams[team].teamName.toLowerCase(),
+            fullName: responseJson.teams[team].locationName+ " " + responseJson.teams[team].teamName,
+            abbreviation: responseJson.teams[team].abbreviation
+        })
+    };     
 }
 
-function watchForm() {
+function watchPage() {
     $('.search-form').on('submit', trackTeam );
-    console.log('watchForm ran');
-
+    $('section').on('click', '.singleGame', detectLineScore ) 
 }
 
 function trackTeam() {
-    let teamID = findTeamID();
-    console.log(teamID);
-    getPreviousGameResults(teamID);
+    event.preventDefault();
+
+    clearErrorDisplay();
+    clearResults();
+    clearGames();
+
+    let teamID = findTeamID();    
+    if (teamID) {
+        getPreviousGameResults(teamID);
+        getUpcomingGameSchedule(teamID);
+    }
+
+    
 }
 
 function findTeamID() {        
     const searchTeam = TEAMS.find(x => x.name === $('#team').val().toLowerCase());
-    return searchTeam.id;
-    
+    if (!searchTeam) { 
+        let errorText = `${$('#team').val()} is not a recognized NHL team. Please try again`;                
+        displayError(errorText);
+    } else {
+        return searchTeam.id;
+    }          
 }
 
-// function findTeam(teamID) {
-    
-//     event.preventDefault();
-    
-//     fetch(`${searchURL}/teams/${teamID}`)
-//         .then(response => {
-//             if (response.ok) {
-//                 return response.json();
-//             }
-//             throw new Error(response.statusText);
-//         })
-//         .then(responseJson =>  getPreviousGameResults(responseJson))
-//         .catch(err => displayError());
-// }
+function getPreviousGameResults(teamID) {    
+    let yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    yesterday = yesterday.toISOString().slice(0, 10);    
 
-function getPreviousGameResults(teamID) {
-    let today = new Date();
-    today.setDate(today.getDate() - 1);
-    let endDate = today.toISOString().slice(0, 10);    
-    
     const params = {
         teamId: teamID,
-        endDate: endDate,
+        endDate: yesterday,
         startDate: '2019-04-01',
     };
 
@@ -84,8 +88,17 @@ function getPreviousGameResults(teamID) {
             throw new Error(response.statusText);
         })
         .then(responseJson => displayRecentGames(responseJson))
-        .catch(err => {console.log(err.message);
+        .catch(err => {
+            displayError(err.message);
         });
+}
+
+function clearGames() {
+    GAMES.length = 0;
+}
+
+function clearScoreReturn() {
+    Object.keys(scoreReturn).forEach(x => delete scoreReturn[x])
 }
 
 function formatQueryParams(params) {
@@ -93,10 +106,47 @@ function formatQueryParams(params) {
     return queryItems.join('&');
 }
 
+function clearResults() {
+    $('.previous-container').empty();
+    $('.upcoming-container').empty();
+}
 
-function chooseStartDate() {
-    // let startDate = 
-} 
+function clearErrorDisplay() {
+    $('.status-container').empty();
+}
+
+function getUpcomingGameSchedule(teamID) {
+    let today = new Date().toISOString().slice(0, 10);
+    let endDate = new Date();
+    endDate.setDate(endDate.getDate() + 30);
+    endDate = endDate.toISOString().slice(0, 10);
+    
+    const params = {
+        teamId: teamID,
+        endDate: endDate,
+        startDate: today,
+    };
+
+    const queryString = formatQueryParams(params);
+    const url = searchURL + '/schedule/?' + queryString;
+
+    fetch(url)
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error(response.statusText);
+        })
+        .then(responseJson => displayUpcomingGames(responseJson))
+        .catch(err => {
+            displayError(err.message);
+        });
+
+}
+
+function getRecordOfTeam() {
+    //use to display team and record in status container while results load
+}
 
 function displayLoadingTeam() {
     //show loading animation while fetch occurs
@@ -104,29 +154,174 @@ function displayLoadingTeam() {
 }
 
 function displayError(errorText) {
+    let statusHTML = `
+        <h3>Error</h3>
+        <p class="error">${errorText}</p>
+        `;
+    $('.status-container').html(statusHTML);    
+    }
 
-}
-
-function displayTeam() {
-    
+function getRecentGames(previousGames) {
+    for (let i = 1; i < 4; i++) {
+        GAMES.push({
+            game: previousGames.dates[previousGames.dates.length - i].games[0].gamePk, 
+            away: {
+                team: previousGames.dates[previousGames.dates.length - i].games[0].teams.away.team.name,
+                abbreviation: function() {
+                    return TEAMS.find(x => x.fullName === previousGames.dates[previousGames.dates.length - i].games[0].teams.away.team.name).abbreviation;
+                },
+                score: previousGames.dates[0].games[0].teams.away.score,
+            },
+            home: {
+                team: previousGames.dates[previousGames.dates.length - i].games[0].teams.home.team.name,
+                score: previousGames.dates[0].games[0].teams.home.score,
+            }  
+        })
+    }
 }
 
 function displayRecentGames(previousGames) {
-    // console.log(previousGames.dates[0].games[0].teams.away.team.name)
+    getRecentGames(previousGames);
+    let sectionHTML = '<h3>Previous Game Results</h3>';
+
     for (let i = 1; i < 4;  i++) {
-        console.log(previousGames.dates[previousGames.dates.length - i].games[0].teams.away.team.name);
-        let sectionHTML = `
-    <div class="singleGame container">
-        <div class="away">${previousGames.dates[previousGames.dates.length - i].games[0].teams.away.team.name}& score</div>
-        <div class="vs">VS</div>
-        <div class="home">Home Team Name & score</div>
-    </div>`
-    }
-    
+        let gameHTML = `
+            <div class="singleGame container" data-gameID="${previousGames.dates[previousGames.dates.length - i].games[0].gamePk}">
+            <div class="date">${previousGames.dates[previousGames.dates.length - i].date}</div>    
+            <div class="away">${previousGames.dates[previousGames.dates.length - i].games[0].teams.away.team.name}  ${previousGames.dates[previousGames.dates.length - i].games[0].teams.away.score}</div>
+                <div class="vs">@</div>
+                <div class="home">${previousGames.dates[previousGames.dates.length - i].games[0].teams.home.team.name}  ${previousGames.dates[previousGames.dates.length - i].games[0].teams.home.score}</div>
+            </div>`
+        sectionHTML += gameHTML
+    };
+
+    $('.previous-container').html(sectionHTML);    
 }
 
-function displayUpcomingGames() {
+function displayUpcomingGames(upcomingGames) {
+    let sectionHTML = '<h3>Upcoming Game Schedule</h3>';    
+    for (let i = 0; i < 3;  i++) {
+        let gameHTML = `
+            <div class="futureGame container" data-gameID="${upcomingGames.dates[i].games[0].gamePk}">
+                <div class="date">${upcomingGames.dates[i].date}</div>
+                <div class="away">${upcomingGames.dates[i].games[0].teams.away.team.name}</div>
+                <div class="vs">@</div>
+                <div class="home">${upcomingGames.dates[i].games[0].teams.home.team.name}</div>
+            </div>`
+        sectionHTML += gameHTML
+    };    
+    
+    $('.upcoming-container').html(sectionHTML);
+}
 
+function detectLineScore(event) {        
+    if (Object.keys(scoreReturn).length > 1) {
+        closeLineScore();
+        
+        if ($(event.currentTarget).attr('data-gameID') !== scoreReturn.gameID) {
+            clearScoreReturn();    
+            getLineScore(event);
+        } else {
+            clearScoreReturn();
+        };    
+    } else {
+        getLineScore(event);
+    }
+}
+
+function closeLineScore() {
+    $(`[data-gameID="${scoreReturn.gameID}"]`).html(scoreReturn.gameHTML);
+    $(`[data-gameID="${scoreReturn.gameID}"]`).removeClass('lineScore');
+}
+
+function getLineScore(event) {
+    let gameID = $(event.currentTarget).attr('data-gameID')
+    const url = `${searchURL}/game/${gameID}/linescore`;
+
+    fetch(url)
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            }
+            throw new Error(response.statusText);
+        })
+        .then(responseJson => displayLineScore(responseJson, gameID))
+        .catch(err => displayError(err.message));        
+} 
+
+function displayLineScore(lineScore, gameID) {
+    scoreReturn.gameID = gameID;
+    scoreReturn.gameHTML = $(`[data-gameID="${gameID}"]`).html();
+    
+    let totalHTML = '';
+    let awayFinalHTML = '';
+    let homeFinalHTML = '';
+    let sectionHTML = '';
+    let gameStatus = '';
+    let abbreviation = TEAMS.find(x => x.fullName === lineScore.teams.away.team.name).abbreviation;
+
+    if (lineScore.currentPeriod < 4) {
+        gameStatus = lineScore.currentPeriodTimeRemaining;
+        totalHTML = '<div class="period">Total</div>';
+        awayFinalHTML = `<div class="period total">${lineScore.teams.away.goals}</div>`
+        homeFinalHTML = `<div class="period total">${lineScore.teams.home.goals}</div>`
+    } else {
+        gameStatus = `Final/${lineScore.currentPeriodOrdinal}`;
+        totalHTML = `
+            <div class="period">${lineScore.currentPeriodOrdinal}</div>
+            <div class="period">Total</div>
+            `
+        if (lineScore.currentPeriod < 5) {
+            awayFinalHTML = `
+                <div class="period overTime">${lineScore.periods[3].away.goals}</div>
+                <div class="period total">${lineScore.teams.away.goals}</div>
+            `;
+            homeFinalHTML = `
+            <div class="period overTime">${lineScore.periods[3].home.goals}</div>
+            <div class="period total">${lineScore.teams.home.goals}</div>
+            `;
+        } else {
+            awayFinalHTML = `
+                <div class="period overTime">(${lineScore.shootoutInfo.away.scores}-${lineScore.shootoutInfo.away.attempts})</div>
+                <div class="period total">${lineScore.teams.away.goals}</div>
+            `;
+            homeFinalHTML = `
+            <div class="period overTime">(${lineScore.shootoutInfo.home.scores}-${lineScore.shootoutInfo.home.attempts})</div>
+            <div class="period total">${lineScore.teams.home.goals}</div>
+            `;
+        }
+    } 
+
+    sectionHTML = `        
+        <div class="lineScore-header flex">
+            <div class="gameStatus">${gameStatus}</div>
+            <div class="period">1</div>
+            <div class="period">2</div>
+            <div class="period">3</div>
+            ${totalHTML}
+        </div>
+        <hr class="header-line">
+        <div class="lineScore-container">
+            <div class="lineScore-away flex">
+                <div class="team">${lineScore.teams.away.team.name}</div>
+                <div class="period">${lineScore.periods[0].away.goals}</div>
+                <div class="period">${lineScore.periods[1].away.goals}</div>
+                <div class="period">${lineScore.periods[2].away.goals}</div>                        
+                ${awayFinalHTML}
+            </div>
+        </div>  
+        <hr class="team-line">
+            <div class="lineScore-home flex">
+                <div class="team">${lineScore.teams.home.team.name}</div>
+                <div class="period">${lineScore.periods[0].home.goals}</div>
+                <div class="period">${lineScore.periods[1].home.goals}</div>
+                <div class="period">${lineScore.periods[2].home.goals}</div>                    
+                ${homeFinalHTML}
+            </div>                    
+        </div>        
+    `
+   $(`[data-gameID="${gameID}"]`).html(sectionHTML);
+   $(`[data-gameID="${gameID}"]`).addClass('lineScore');    
 }
 
 $(pageSetup);
