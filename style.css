@@ -5,6 +5,33 @@
 
 body {
     margin: 0;
+    /* background-color: #777 */
+    
+    background: -webkit-linear-gradient(rgba(28, 28, 31, 0.5), rgba(28, 28, 31, 0.8)),
+    -webkit-linear-gradient(rgba(28, 28, 31, 0.5), rgba(28, 28, 31, 0.3)),
+    url('/images/nhlTeamLogoCalendar.jpg');
+    background-position: center center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        -o-background-size: cover;
+        background-size: cover;
+    background-color: rgba(28, 28, 31, 1);
+    font-family: "Archivo Narrow", Helvetica, sans-serif;
+    letter-spacing: 1px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+h1, h2 {
+    margin: 0;
+    padding: 20px 0;
+}
+
+h3 {
+    margin: 10px 0 0 0;
 }
 
 a {
@@ -12,17 +39,30 @@ a {
 }
 
 main {
-    min-height: calc(100vh - 55px);
+    min-height: calc(100vh - 50px);
+    margin: 0 auto;        
+    max-width: 600px;
+    color: #fff;
+    flex: 1;
 }
 
 .hero {
     text-align: center;
+    padding: 0 15px;
+    color: #fff;    
 }
 
 .flex {
     display: flex;
     justify-content: center;
+    align-items: center;
     text-align: center;    
+}
+
+.search-container {
+    /* height: 400px; */
+    height: calc(100vh - 212px);
+    flex-direction: column;
 }
 
 form {
@@ -36,18 +76,23 @@ fieldset {
     border: none;
 }
 
-input, button {
+input {
     margin: 10px auto;
     padding: 5px;      
 }
 
 .container {
-    border: solid 1px black;    
+    /* border-top: solid 1px #888;
+    border-bottom: solid 1px #888; */
+}
+
+hr {
+    width: 100%;
 }
 
 .status-container {
     flex-direction: column;
-    color: #333;
+    color: #e01e1e;
     padding: 0 5px;
 }
 
@@ -58,17 +103,29 @@ input, button {
 }
 
 .singleGame, .futureGame {
+    background: none;    
+    border: 2px solid #fff;
+    border-width: 2px;
+    border-left: none;
+    border-top: none;
+    border-right: none;    
     width: 100%;
     padding: 5px;
+    color: #fff;
 }
 
 .footer {
     background: #333;
-    color: #fff;
-    justify-content: space-around; 
-    align-items: center;
+    color: #fff;    
     width: 100%;    
     padding: 5px 0;    
+}
+
+.foot-container {
+    max-width: 600px;
+    justify-content: space-evenly; 
+    align-items: center;
+    margin: 0 auto;
 }
 
 .footNote {
@@ -77,6 +134,7 @@ input, button {
 
 .social-icon {
     width: 20px;
+    vertical-align: middle;
 }
 
 .singleGame:hover {
@@ -94,4 +152,18 @@ input, button {
 
 .period {
     flex: 1;
+}
+
+.winner {
+    font-size: 1.1em;
+    font-weight: 600;
+}
+
+.game-list {
+    list-style: none;
+    padding-left: 0;
+}
+
+.submit-button {
+    margin: 0 auto;
 }

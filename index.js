@@ -163,43 +163,94 @@ function displayError(errorText) {
 
 function getRecentGames(previousGames) {
     for (let i = 1; i < 4; i++) {
+        let game = previousGames.dates[previousGames.dates.length - i];
+        let whoWon = (game.games[0].teams.away.score > game.games[0].teams.home.score)
+            ? 'away'
+            : 'home';
         GAMES.push({
-            game: previousGames.dates[previousGames.dates.length - i].games[0].gamePk, 
+            game: game.games[0].gamePk.toString(),
+            date: game.date,
             away: {
-                team: previousGames.dates[previousGames.dates.length - i].games[0].teams.away.team.name,
-                abbreviation: function() {
-                    return TEAMS.find(x => x.fullName === previousGames.dates[previousGames.dates.length - i].games[0].teams.away.team.name).abbreviation;
-                },
-                score: previousGames.dates[0].games[0].teams.away.score,
+                team: game.games[0].teams.away.team.name,
+                abbreviation: TEAMS.find(x => x.fullName === game.games[0].teams.away.team.name).abbreviation,
+                score: game.games[0].teams.away.score,
+                winner: (whoWon === 'away') ? 'winner' : 'loser',           
             },
             home: {
-                team: previousGames.dates[previousGames.dates.length - i].games[0].teams.home.team.name,
-                score: previousGames.dates[0].games[0].teams.home.score,
-            }  
+                team: game.games[0].teams.home.team.name,
+                score: game.games[0].teams.home.score,
+                winner: (whoWon === 'home') ? 'winner' : 'loser',                           
+            }, 
+            // winner: function() {
+            //     if (this.away.score > this.home.score) {
+            //         return this.away.team;
+            //     } else {
+            //         return this.home.team;
+            //     };
+            // } 
         })
+    }
+    // determineWinner();
+}
+
+function determineWinner() {
+    for (let x in GAMES) {
+        if(GAMES[x].away.score > GAMES[x].home.score) {
+            GAMES[x].away.winner =  'winner';
+            GAMES[x].home.winner =  'loser';
+        } else {
+            GAMES[x].home.winner = 'winner';
+            GAMES[x].away.winner = 'loser';
+        }
     }
 }
 
 function displayRecentGames(previousGames) {
     getRecentGames(previousGames);
-    let sectionHTML = '<h3>Previous Game Results</h3>';
+    let sectionHTML = `
+        <h3>Previous Game Results</h3>
+        <hr class="header-line">
+    `;
 
-    for (let i = 1; i < 4;  i++) {
+    console.log(GAMES);
+    for (let x in GAMES) {
         let gameHTML = `
-            <div class="singleGame container" data-gameID="${previousGames.dates[previousGames.dates.length - i].games[0].gamePk}">
-            <div class="date">${previousGames.dates[previousGames.dates.length - i].date}</div>    
-            <div class="away">${previousGames.dates[previousGames.dates.length - i].games[0].teams.away.team.name}  ${previousGames.dates[previousGames.dates.length - i].games[0].teams.away.score}</div>
+            <div class="singleGame container" data-gameID="${GAMES[x].game}">
+                <div class="date">${GAMES[x].date}</div>
+                <div class="away ${GAMES[x].away.winner}">${GAMES[x].away.team}  ${GAMES[x].away.score}</div>
                 <div class="vs">@</div>
-                <div class="home">${previousGames.dates[previousGames.dates.length - i].games[0].teams.home.team.name}  ${previousGames.dates[previousGames.dates.length - i].games[0].teams.home.score}</div>
-            </div>`
+                <div class="home ${GAMES[x].home.winner}">${GAMES[x].home.team}  ${GAMES[x].home.score}</div>
+            </div>
+            <hr class="game-line">
+        `
         sectionHTML += gameHTML
     };
 
-    $('.previous-container').html(sectionHTML);    
+        // for (let i = 1; i < 4;  i++) {
+    //     let gameHTML = `
+    //         <div class="singleGame container" data-gameID="${previousGames.dates[previousGames.dates.length - i].games[0].gamePk}">
+    //         <div class="date">${previousGames.dates[previousGames.dates.length - i].date}</div>    
+    //         <div class="away">${previousGames.dates[previousGames.dates.length - i].games[0].teams.away.team.name}  ${previousGames.dates[previousGames.dates.length - i].games[0].teams.away.score}</div>
+    //             <div class="vs">@</div>
+    //             <div class="home">${previousGames.dates[previousGames.dates.length - i].games[0].teams.home.team.name}  ${previousGames.dates[previousGames.dates.length - i].games[0].teams.home.score}</div>
+    //         </div>
+    //         <hr class="game-line">
+    //         `
+    //     sectionHTML += gameHTML
+    // };
+
+    $('.previous-container').html(sectionHTML);   
+    goToGames(); 
 }
 
+
+
 function displayUpcomingGames(upcomingGames) {
-    let sectionHTML = '<h3>Upcoming Game Schedule</h3>';    
+    let sectionHTML = `
+        <h3>Upcoming Game Schedule</h3>
+        <hr class="header-line">
+        `;    
+
     for (let i = 0; i < 3;  i++) {
         let gameHTML = `
             <div class="futureGame container" data-gameID="${upcomingGames.dates[i].games[0].gamePk}">
@@ -207,7 +258,9 @@ function displayUpcomingGames(upcomingGames) {
                 <div class="away">${upcomingGames.dates[i].games[0].teams.away.team.name}</div>
                 <div class="vs">@</div>
                 <div class="home">${upcomingGames.dates[i].games[0].teams.home.team.name}</div>
-            </div>`
+            </div>
+            <hr class="game-line">
+            `
         sectionHTML += gameHTML
     };    
     
@@ -259,6 +312,9 @@ function displayLineScore(lineScore, gameID) {
     let sectionHTML = '';
     let gameStatus = '';
     let abbreviation = TEAMS.find(x => x.fullName === lineScore.teams.away.team.name).abbreviation;
+    console.log(typeof(gameID));
+    let winner = GAMES.find(x => x.game === gameID).away.winner
+    
 
     if (lineScore.currentPeriod < 4) {
         gameStatus = lineScore.currentPeriodTimeRemaining;
@@ -302,7 +358,7 @@ function displayLineScore(lineScore, gameID) {
         </div>
         <hr class="header-line">
         <div class="lineScore-container">
-            <div class="lineScore-away flex">
+            <div class="lineScore-away ${GAMES.find(x => x.game === gameID).away.winner} flex">
                 <div class="team">${lineScore.teams.away.team.name}</div>
                 <div class="period">${lineScore.periods[0].away.goals}</div>
                 <div class="period">${lineScore.periods[1].away.goals}</div>
@@ -311,7 +367,7 @@ function displayLineScore(lineScore, gameID) {
             </div>
         </div>  
         <hr class="team-line">
-            <div class="lineScore-home flex">
+            <div class="lineScore-home ${GAMES.find(x => x.game === gameID).home.winner} flex">
                 <div class="team">${lineScore.teams.home.team.name}</div>
                 <div class="period">${lineScore.periods[0].home.goals}</div>
                 <div class="period">${lineScore.periods[1].home.goals}</div>
@@ -322,6 +378,12 @@ function displayLineScore(lineScore, gameID) {
     `
    $(`[data-gameID="${gameID}"]`).html(sectionHTML);
    $(`[data-gameID="${gameID}"]`).addClass('lineScore');    
+}
+
+function goToGames() {
+    $('html, body').animate({
+        scrollTop: $('.previous-container').offset().top
+    }, 400);
 }
 
 $(pageSetup);
