@@ -158,8 +158,9 @@ function displayError(errorText) {
         <h3>Error</h3>
         <p class="error">${errorText}</p>
         `;
-    $('.status-container').html(statusHTML);    
-    }
+    $('.status-container').html(statusHTML);
+    goToSearch();
+}
 
 function getRecentGames(previousGames) {
     for (let i = 1; i < 4; i++) {
@@ -209,19 +210,21 @@ function displayRecentGames(previousGames) {
     getRecentGames(previousGames);
     let sectionHTML = `
         <h3>Previous Game Results</h3>
+        <p class="instruction">Click on any game to see line score</p>
         <hr class="header-line">
     `;
 
     console.log(GAMES);
     for (let x in GAMES) {
         let gameHTML = `
-            <div class="singleGame container" data-gameID="${GAMES[x].game}">
-                <div class="date">${GAMES[x].date}</div>
-                <div class="away ${GAMES[x].away.winner}">${GAMES[x].away.team}  ${GAMES[x].away.score}</div>
-                <div class="vs">@</div>
-                <div class="home ${GAMES[x].home.winner}">${GAMES[x].home.team}  ${GAMES[x].home.score}</div>
-            </div>
-            <hr class="game-line">
+            <button class="singleGame container" data-gameID="${GAMES[x].game}">
+                <ul class="game-list">    
+                    <li class="date">${GAMES[x].date}</li>
+                    <li class="away ${GAMES[x].away.winner}">${GAMES[x].away.team}  ${GAMES[x].away.score}</li>
+                    <li class="vs">@</li>
+                    <li class="home ${GAMES[x].home.winner}">${GAMES[x].home.team}  ${GAMES[x].home.score}</li>
+                </ul>
+            </button>            
         `
         sectionHTML += gameHTML
     };
@@ -246,6 +249,7 @@ function displayRecentGames(previousGames) {
 
 
 function displayUpcomingGames(upcomingGames) {
+    
     let sectionHTML = `
         <h3>Upcoming Game Schedule</h3>
         <hr class="header-line">
@@ -254,12 +258,13 @@ function displayUpcomingGames(upcomingGames) {
     for (let i = 0; i < 3;  i++) {
         let gameHTML = `
             <div class="futureGame container" data-gameID="${upcomingGames.dates[i].games[0].gamePk}">
-                <div class="date">${upcomingGames.dates[i].date}</div>
-                <div class="away">${upcomingGames.dates[i].games[0].teams.away.team.name}</div>
-                <div class="vs">@</div>
-                <div class="home">${upcomingGames.dates[i].games[0].teams.home.team.name}</div>
-            </div>
-            <hr class="game-line">
+                <ul class="game-list">    
+                    <li class="date">${upcomingGames.dates[i].date}</li>
+                    <li class="away">${upcomingGames.dates[i].games[0].teams.away.team.name}</li>
+                    <li class="vs">@</li>
+                    <li class="home">${upcomingGames.dates[i].games[0].teams.home.team.name}</li>
+                </ul>
+            </div>            
             `
         sectionHTML += gameHTML
     };    
@@ -318,62 +323,61 @@ function displayLineScore(lineScore, gameID) {
 
     if (lineScore.currentPeriod < 4) {
         gameStatus = lineScore.currentPeriodTimeRemaining;
-        totalHTML = '<div class="period">Total</div>';
-        awayFinalHTML = `<div class="period total">${lineScore.teams.away.goals}</div>`
-        homeFinalHTML = `<div class="period total">${lineScore.teams.home.goals}</div>`
+        totalHTML = '<li class="period">Total</li>';
+        awayFinalHTML = `<li class="period total">${lineScore.teams.away.goals}</li>`
+        homeFinalHTML = `<li class="period total">${lineScore.teams.home.goals}</li>`
     } else {
         gameStatus = `Final/${lineScore.currentPeriodOrdinal}`;
         totalHTML = `
-            <div class="period">${lineScore.currentPeriodOrdinal}</div>
-            <div class="period">Total</div>
+            <li class="period">${lineScore.currentPeriodOrdinal}</li>
+            <li class="period">Total</li>
             `
         if (lineScore.currentPeriod < 5) {
             awayFinalHTML = `
-                <div class="period overTime">${lineScore.periods[3].away.goals}</div>
-                <div class="period total">${lineScore.teams.away.goals}</div>
+                <li class="period overTime">${lineScore.periods[3].away.goals}</li>
+                <li class="period total">${lineScore.teams.away.goals}</li>
             `;
             homeFinalHTML = `
-            <div class="period overTime">${lineScore.periods[3].home.goals}</div>
-            <div class="period total">${lineScore.teams.home.goals}</div>
+            <li class="period overTime">${lineScore.periods[3].home.goals}</li>
+            <li class="period total">${lineScore.teams.home.goals}</li>
             `;
         } else {
             awayFinalHTML = `
-                <div class="period overTime">(${lineScore.shootoutInfo.away.scores}-${lineScore.shootoutInfo.away.attempts})</div>
-                <div class="period total">${lineScore.teams.away.goals}</div>
+                <li class="period overTime">(${lineScore.shootoutInfo.away.scores}-${lineScore.shootoutInfo.away.attempts})</li>
+                <li class="period total">${lineScore.teams.away.goals}</li>
             `;
             homeFinalHTML = `
-            <div class="period overTime">(${lineScore.shootoutInfo.home.scores}-${lineScore.shootoutInfo.home.attempts})</div>
-            <div class="period total">${lineScore.teams.home.goals}</div>
+            <li class="period overTime">(${lineScore.shootoutInfo.home.scores}-${lineScore.shootoutInfo.home.attempts})</li>
+            <li class="period total">${lineScore.teams.home.goals}</li>
             `;
         }
     } 
 
     sectionHTML = `        
-        <div class="lineScore-header flex">
-            <div class="gameStatus">${gameStatus}</div>
-            <div class="period">1</div>
-            <div class="period">2</div>
-            <div class="period">3</div>
+        <ul class="lineScore-header flex">
+            <li class="gameStatus">${gameStatus}</li>
+            <li class="period">1</li>
+            <li class="period">2</li>
+            <li class="period">3</li>
             ${totalHTML}
-        </div>
+        </ul>
         <hr class="header-line">
         <div class="lineScore-container">
-            <div class="lineScore-away ${GAMES.find(x => x.game === gameID).away.winner} flex">
-                <div class="team">${lineScore.teams.away.team.name}</div>
-                <div class="period">${lineScore.periods[0].away.goals}</div>
-                <div class="period">${lineScore.periods[1].away.goals}</div>
-                <div class="period">${lineScore.periods[2].away.goals}</div>                        
+            <ul class="lineScore-away ${GAMES.find(x => x.game === gameID).away.winner} flex">
+                <li class="team">${lineScore.teams.away.team.name}</li>
+                <li class="period">${lineScore.periods[0].away.goals}</li>
+                <li class="period">${lineScore.periods[1].away.goals}</li>
+                <li class="period">${lineScore.periods[2].away.goals}</li>                        
                 ${awayFinalHTML}
-            </div>
-        </div>  
-        <hr class="team-line">
-            <div class="lineScore-home ${GAMES.find(x => x.game === gameID).home.winner} flex">
-                <div class="team">${lineScore.teams.home.team.name}</div>
-                <div class="period">${lineScore.periods[0].home.goals}</div>
-                <div class="period">${lineScore.periods[1].home.goals}</div>
-                <div class="period">${lineScore.periods[2].home.goals}</div>                    
+            </ul>          
+            <hr class="team-line">
+            <ul class="lineScore-home ${GAMES.find(x => x.game === gameID).home.winner} flex">
+                <li class="team">${lineScore.teams.home.team.name}</li>
+                <li class="period">${lineScore.periods[0].home.goals}</li>
+                <li class="period">${lineScore.periods[1].home.goals}</li>
+                <li class="period">${lineScore.periods[2].home.goals}</li>                    
                 ${homeFinalHTML}
-            </div>                    
+            </ul>                    
         </div>        
     `
    $(`[data-gameID="${gameID}"]`).html(sectionHTML);
@@ -383,6 +387,12 @@ function displayLineScore(lineScore, gameID) {
 function goToGames() {
     $('html, body').animate({
         scrollTop: $('.previous-container').offset().top
+    }, 400);
+}
+
+function goToSearch() {
+    $('html, body').animate({
+        scrollTop: $('.search-container').offset().top
     }, 400);
 }
 

@@ -31,7 +31,7 @@ h1, h2 {
 }
 
 h3 {
-    margin: 10px 0 0 0;
+    margin: 20px 0 0 0;
 }
 
 a {
@@ -94,9 +94,11 @@ hr {
     flex-direction: column;
     color: #e01e1e;
     padding: 0 5px;
+    font-weight: 600;
 }
 
 .previous-container, .upcoming-container {
+    flex-direction: column;
     justify-content: center;
     flex-wrap: wrap;
     margin: 10px;
@@ -110,8 +112,9 @@ hr {
     border-top: none;
     border-right: none;    
     width: 100%;
-    padding: 5px;
+    padding: 10px;
     color: #fff;
+    font-size: 16px;
 }
 
 .footer {
@@ -141,8 +144,11 @@ hr {
     cursor: pointer;
 }
 
-.lineScore-header {
+.lineScore-header, .lineScore-away, .lineScore-home  {
     justify-content: space-between;
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
 }
 
 .gameStatus, .team {
@@ -162,8 +168,18 @@ hr {
 .game-list {
     list-style: none;
     padding-left: 0;
+    margin: 0;
 }
 
 .submit-button {
     margin: 0 auto;
 }
+
+.instruction {
+    margin: 5px;
+    font-size: 14px;
+}
+
+button:hover {
+    transform: scale(1.2);
+}   
