@@ -155,7 +155,7 @@ function displayLoadingTeam() {
 
 function displayError(errorText) {
     let statusHTML = `
-        <h3>Error</h3>
+        <h2>Error</h2>
         <p class="error">${errorText}</p>
         `;
     $('.status-container').html(statusHTML);
@@ -182,16 +182,8 @@ function getRecentGames(previousGames) {
                 score: game.games[0].teams.home.score,
                 winner: (whoWon === 'home') ? 'winner' : 'loser',                           
             }, 
-            // winner: function() {
-            //     if (this.away.score > this.home.score) {
-            //         return this.away.team;
-            //     } else {
-            //         return this.home.team;
-            //     };
-            // } 
         })
-    }
-    // determineWinner();
+    }    
 }
 
 function determineWinner() {
@@ -209,12 +201,11 @@ function determineWinner() {
 function displayRecentGames(previousGames) {
     getRecentGames(previousGames);
     let sectionHTML = `
-        <h3>Previous Game Results</h3>
+        <h2>Previous Game Results</h2>
         <p class="instruction">Click on any game to see line score</p>
         <hr class="header-line">
     `;
-
-    console.log(GAMES);
+  
     for (let x in GAMES) {
         let gameHTML = `
             <button class="singleGame container" data-gameID="${GAMES[x].game}">
@@ -229,19 +220,6 @@ function displayRecentGames(previousGames) {
         sectionHTML += gameHTML
     };
 
-        // for (let i = 1; i < 4;  i++) {
-    //     let gameHTML = `
-    //         <div class="singleGame container" data-gameID="${previousGames.dates[previousGames.dates.length - i].games[0].gamePk}">
-    //         <div class="date">${previousGames.dates[previousGames.dates.length - i].date}</div>    
-    //         <div class="away">${previousGames.dates[previousGames.dates.length - i].games[0].teams.away.team.name}  ${previousGames.dates[previousGames.dates.length - i].games[0].teams.away.score}</div>
-    //             <div class="vs">@</div>
-    //             <div class="home">${previousGames.dates[previousGames.dates.length - i].games[0].teams.home.team.name}  ${previousGames.dates[previousGames.dates.length - i].games[0].teams.home.score}</div>
-    //         </div>
-    //         <hr class="game-line">
-    //         `
-    //     sectionHTML += gameHTML
-    // };
-
     $('.previous-container').html(sectionHTML);   
     goToGames(); 
 }
@@ -251,7 +229,7 @@ function displayRecentGames(previousGames) {
 function displayUpcomingGames(upcomingGames) {
     
     let sectionHTML = `
-        <h3>Upcoming Game Schedule</h3>
+        <h2>Upcoming Game Schedule</h2>
         <hr class="header-line">
         `;    
 
@@ -316,9 +294,8 @@ function displayLineScore(lineScore, gameID) {
     let homeFinalHTML = '';
     let sectionHTML = '';
     let gameStatus = '';
-    let abbreviation = TEAMS.find(x => x.fullName === lineScore.teams.away.team.name).abbreviation;
-    console.log(typeof(gameID));
-    let winner = GAMES.find(x => x.game === gameID).away.winner
+    let abbreviation = TEAMS.find(x => x.fullName === lineScore.teams.away.team.name).abbreviation;    
+    // let winner = GAMES.find(x => x.game === gameID).away.winner
     
 
     if (lineScore.currentPeriod < 4) {
@@ -364,7 +341,7 @@ function displayLineScore(lineScore, gameID) {
         <hr class="header-line">
         <div class="lineScore-container">
             <ul class="lineScore-away ${GAMES.find(x => x.game === gameID).away.winner} flex">
-                <li class="team">${lineScore.teams.away.team.name}</li>
+                <li class="team">${TEAMS.find(x => x.fullName === lineScore.teams.away.team.name).abbreviation}</li>
                 <li class="period">${lineScore.periods[0].away.goals}</li>
                 <li class="period">${lineScore.periods[1].away.goals}</li>
                 <li class="period">${lineScore.periods[2].away.goals}</li>                        
@@ -372,7 +349,7 @@ function displayLineScore(lineScore, gameID) {
             </ul>          
             <hr class="team-line">
             <ul class="lineScore-home ${GAMES.find(x => x.game === gameID).home.winner} flex">
-                <li class="team">${lineScore.teams.home.team.name}</li>
+                <li class="team">${TEAMS.find(x => x.fullName === lineScore.teams.home.team.name).abbreviation}</li>
                 <li class="period">${lineScore.periods[0].home.goals}</li>
                 <li class="period">${lineScore.periods[1].home.goals}</li>
                 <li class="period">${lineScore.periods[2].home.goals}</li>                    
@@ -395,5 +372,11 @@ function goToSearch() {
         scrollTop: $('.search-container').offset().top
     }, 400);
 }
+
+function displayPage() {
+    // if the gameID to display was clicked display line score
+    // otherwise draw normal 
+}
+
 
 $(pageSetup);

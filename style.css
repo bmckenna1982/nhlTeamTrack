@@ -25,12 +25,12 @@ body {
     flex-direction: column;
 }
 
-h1, h2 {
+h1 {
     margin: 0;
     padding: 20px 0;
 }
 
-h3 {
+h2 {
     margin: 20px 0 0 0;
 }
 
@@ -39,16 +39,19 @@ a {
 }
 
 main {
-    min-height: calc(100vh - 50px);
+    /* min-height: calc(100vh - 50px); */
     margin: 0 auto;        
     max-width: 600px;
     color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     flex: 1;
 }
 
 .hero {
     text-align: center;
-    padding: 0 15px;
+    padding: 15px 15px 0;
     color: #fff;    
 }
 
@@ -61,7 +64,7 @@ main {
 
 .search-container {
     /* height: 400px; */
-    height: calc(100vh - 212px);
+    /* height: calc(100vh - 212px); */
     flex-direction: column;
 }
 
@@ -181,5 +184,12 @@ hr {
 }
 
 button:hover {
-    transform: scale(1.2);
-}   
+    /* transform: scale(1.2); */
+    font-size: 1.2em;
+} 
+
+@media screen and (min-width: 768px) {
+    label, input, .submit-button {
+        margin: 20px auto;
+    }
+}
