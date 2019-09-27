@@ -1,7 +1,7 @@
 const searchURL = 'https://statsapi.web.nhl.com/api/v1/';
 const TEAMS = [];
-const GAMES = [];
-const scoreReturn = {};
+const GAMES = {};
+let activeGAME = '';
 
 function pageSetup() {
     //call API and build team ID object    
@@ -37,10 +37,11 @@ function createTeamList(responseJson) {
 
 function watchPage() {
     $('.search-form').on('submit', trackTeam );
-    $('section').on('click', '.singleGame', detectLineScore ) 
+    $('section').on('click', '.singleGame', detectLineScore );
+    $('section').on('click', '.lineScore', closeLineScore ); 
 }
 
-function trackTeam() {
+async function trackTeam() {
     event.preventDefault();
 
     clearErrorDisplay();
@@ -49,8 +50,12 @@ function trackTeam() {
 
     let teamID = findTeamID();    
     if (teamID) {
-        getPreviousGameResults(teamID);
-        getUpcomingGameSchedule(teamID);
+        await Promise.all([
+            getPreviousGameResults(teamID),
+            getUpcomingGameSchedule(teamID)
+        ])
+        displayPage();
+        goToGames();
     }
 
     
@@ -80,39 +85,17 @@ function getPreviousGameResults(teamID) {
     const queryString = formatQueryParams(params);
     const url = searchURL + '/schedule/?' + queryString;
 
-    fetch(url)
+    return fetch(url)
         .then(response => {
             if (response.ok) {
                 return response.json();
             }
             throw new Error(response.statusText);
         })
-        .then(responseJson => displayRecentGames(responseJson))
+        .then(responseJson => getRecentGames(responseJson))
         .catch(err => {
             displayError(err.message);
         });
-}
-
-function clearGames() {
-    GAMES.length = 0;
-}
-
-function clearScoreReturn() {
-    Object.keys(scoreReturn).forEach(x => delete scoreReturn[x])
-}
-
-function formatQueryParams(params) {
-    queryItems = Object.keys(params).map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
-    return queryItems.join('&');
-}
-
-function clearResults() {
-    $('.previous-container').empty();
-    $('.upcoming-container').empty();
-}
-
-function clearErrorDisplay() {
-    $('.status-container').empty();
 }
 
 function getUpcomingGameSchedule(teamID) {
@@ -130,45 +113,34 @@ function getUpcomingGameSchedule(teamID) {
     const queryString = formatQueryParams(params);
     const url = searchURL + '/schedule/?' + queryString;
 
-    fetch(url)
+    return fetch(url)
         .then(response => {
             if (response.ok) {
                 return response.json();
             }
             throw new Error(response.statusText);
         })
-        .then(responseJson => displayUpcomingGames(responseJson))
+        .then(responseJson => getUpcomingGames(responseJson))
         .catch(err => {
             displayError(err.message);
         });
 
 }
 
-function getRecordOfTeam() {
-    //use to display team and record in status container while results load
-}
-
-function displayLoadingTeam() {
-    //show loading animation while fetch occurs
-
-}
-
-function displayError(errorText) {
-    let statusHTML = `
-        <h2>Error</h2>
-        <p class="error">${errorText}</p>
-        `;
-    $('.status-container').html(statusHTML);
-    goToSearch();
+function formatQueryParams(params) {
+    queryItems = Object.keys(params).map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
+    return queryItems.join('&');
 }
 
 function getRecentGames(previousGames) {
+    let gameArray = [];
     for (let i = 1; i < 4; i++) {
         let game = previousGames.dates[previousGames.dates.length - i];
         let whoWon = (game.games[0].teams.away.score > game.games[0].teams.home.score)
             ? 'away'
             : 'home';
-        GAMES.push({
+        
+            gameArray.push({
             game: game.games[0].gamePk.toString(),
             date: game.date,
             away: {
@@ -181,156 +153,123 @@ function getRecentGames(previousGames) {
                 team: game.games[0].teams.home.team.name,
                 score: game.games[0].teams.home.score,
                 winner: (whoWon === 'home') ? 'winner' : 'loser',                           
-            }, 
+            },             
         })
-    }    
-}
-
-function determineWinner() {
-    for (let x in GAMES) {
-        if(GAMES[x].away.score > GAMES[x].home.score) {
-            GAMES[x].away.winner =  'winner';
-            GAMES[x].home.winner =  'loser';
-        } else {
-            GAMES[x].home.winner = 'winner';
-            GAMES[x].away.winner = 'loser';
-        }
+        GAMES.previous = gameArray;        
     }
 }
 
-function displayRecentGames(previousGames) {
-    getRecentGames(previousGames);
-    let sectionHTML = `
-        <h2>Previous Game Results</h2>
-        <p class="instruction">Click on any game to see line score</p>
-        <hr class="header-line">
-    `;
-  
-    for (let x in GAMES) {
-        let gameHTML = `
-            <button class="singleGame container" data-gameID="${GAMES[x].game}">
-                <ul class="game-list">    
-                    <li class="date">${GAMES[x].date}</li>
-                    <li class="away ${GAMES[x].away.winner}">${GAMES[x].away.team}  ${GAMES[x].away.score}</li>
-                    <li class="vs">@</li>
-                    <li class="home ${GAMES[x].home.winner}">${GAMES[x].home.team}  ${GAMES[x].home.score}</li>
-                </ul>
-            </button>            
-        `
-        sectionHTML += gameHTML
-    };
-
-    $('.previous-container').html(sectionHTML);   
-    goToGames(); 
-}
-
-
-
-function displayUpcomingGames(upcomingGames) {
-    
-    let sectionHTML = `
-        <h2>Upcoming Game Schedule</h2>
-        <hr class="header-line">
-        `;    
-
-    for (let i = 0; i < 3;  i++) {
-        let gameHTML = `
-            <div class="futureGame container" data-gameID="${upcomingGames.dates[i].games[0].gamePk}">
-                <ul class="game-list">    
-                    <li class="date">${upcomingGames.dates[i].date}</li>
-                    <li class="away">${upcomingGames.dates[i].games[0].teams.away.team.name}</li>
-                    <li class="vs">@</li>
-                    <li class="home">${upcomingGames.dates[i].games[0].teams.home.team.name}</li>
-                </ul>
-            </div>            
-            `
-        sectionHTML += gameHTML
-    };    
-    
-    $('.upcoming-container').html(sectionHTML);
-}
-
-function detectLineScore(event) {        
-    if (Object.keys(scoreReturn).length > 1) {
-        closeLineScore();
-        
-        if ($(event.currentTarget).attr('data-gameID') !== scoreReturn.gameID) {
-            clearScoreReturn();    
-            getLineScore(event);
-        } else {
-            clearScoreReturn();
-        };    
-    } else {
-        getLineScore(event);
+function getUpcomingGames(upcomingGames) {
+    let gameArray = [];
+    for (let i = 0; i < 3; i++) {
+        let game = upcomingGames.dates[i]
+        gameArray.push({
+            game: game.games[0].gamePk,
+            date: game.date,
+            away: game.games[0].teams.away.team.name,
+            home: game.games[0].teams.home.team.name,
+        })
     }
+    GAMES.upcoming = gameArray;
+}
+
+async function detectLineScore(event) {
+    let thisGame = $(event.currentTarget).attr('data-gameID')    
+    if (thisGame !== activeGAME) {
+        activeGAME = thisGame;
+        await Promise.all([getLineScore()]);
+    }
+
+    displayPage();         
 }
 
 function closeLineScore() {
-    $(`[data-gameID="${scoreReturn.gameID}"]`).html(scoreReturn.gameHTML);
-    $(`[data-gameID="${scoreReturn.gameID}"]`).removeClass('lineScore');
+    activeGAME = '';
+    displayPage();    
 }
 
-function getLineScore(event) {
-    let gameID = $(event.currentTarget).attr('data-gameID')
-    const url = `${searchURL}/game/${gameID}/linescore`;
+function clearResults() {
+    $('.previous-container').empty();
+    $('.upcoming-container').empty();
+}
 
-    fetch(url)
+function clearGames() {    
+    Object.keys(GAMES).forEach(x => delete GAMES[x]) 
+}
+
+function clearErrorDisplay() {
+    $('.status-container').empty();
+}
+
+function displayError(errorText) {
+    let statusHTML = `
+        <h2>Error</h2>
+        <p class="error">${errorText}</p>
+        `;
+    $('.status-container').html(statusHTML);
+    goToSearch();
+}
+
+function getLineScore() {    
+    const url = `${searchURL}/game/${activeGAME}/linescore`;
+
+    return fetch(url)
         .then(response => {
             if (response.ok) {
                 return response.json();
             }
             throw new Error(response.statusText);
         })
-        .then(responseJson => displayLineScore(responseJson, gameID))
+        .then(responseJson => saveLineScore(responseJson)) 
         .catch(err => displayError(err.message));        
 } 
 
-function displayLineScore(lineScore, gameID) {
-    scoreReturn.gameID = gameID;
-    scoreReturn.gameHTML = $(`[data-gameID="${gameID}"]`).html();
-    
+function saveLineScore(lineScore) {
+    GAMES.previous.find(x => x.game === activeGAME).lineScore = lineScore;
+}
+
+function displayLineScore() {    
     let totalHTML = '';
     let awayFinalHTML = '';
     let homeFinalHTML = '';
     let sectionHTML = '';
     let gameStatus = '';
-    let abbreviation = TEAMS.find(x => x.fullName === lineScore.teams.away.team.name).abbreviation;    
-    // let winner = GAMES.find(x => x.game === gameID).away.winner
+    let ls = GAMES.previous.find(x => x.game === activeGAME).lineScore
     
-
-    if (lineScore.currentPeriod < 4) {
-        gameStatus = lineScore.currentPeriodTimeRemaining;
+    if (ls.currentPeriod < 4) {
+        gameStatus = ls.currentPeriodTimeRemaining;
         totalHTML = '<li class="period">Total</li>';
-        awayFinalHTML = `<li class="period total">${lineScore.teams.away.goals}</li>`
-        homeFinalHTML = `<li class="period total">${lineScore.teams.home.goals}</li>`
+        awayFinalHTML = `<li class="period total">${ls.teams.away.goals}</li>`
+        homeFinalHTML = `<li class="period total">${ls.teams.home.goals}</li>`
     } else {
-        gameStatus = `Final/${lineScore.currentPeriodOrdinal}`;
+        gameStatus = `Final/${ls.currentPeriodOrdinal}`;
         totalHTML = `
-            <li class="period">${lineScore.currentPeriodOrdinal}</li>
+            <li class="period">${ls.currentPeriodOrdinal}</li>
             <li class="period">Total</li>
             `
-        if (lineScore.currentPeriod < 5) {
+        if (ls.currentPeriod < 5) {
             awayFinalHTML = `
-                <li class="period overTime">${lineScore.periods[3].away.goals}</li>
-                <li class="period total">${lineScore.teams.away.goals}</li>
+                <li class="period overTime">${ls.periods[3].away.goals}</li>
+                <li class="period total">${ls.teams.away.goals}</li>
             `;
             homeFinalHTML = `
-            <li class="period overTime">${lineScore.periods[3].home.goals}</li>
-            <li class="period total">${lineScore.teams.home.goals}</li>
+            <li class="period overTime">${ls.periods[3].home.goals}</li>
+            <li class="period total">${ls.teams.home.goals}</li>
             `;
         } else {
             awayFinalHTML = `
-                <li class="period overTime">(${lineScore.shootoutInfo.away.scores}-${lineScore.shootoutInfo.away.attempts})</li>
-                <li class="period total">${lineScore.teams.away.goals}</li>
+                <li class="period overTime">(${ls.shootoutInfo.away.scores}-${ls.shootoutInfo.away.attempts})</li>
+                <li class="period total">${ls.teams.away.goals}</li>
             `;
             homeFinalHTML = `
-            <li class="period overTime">(${lineScore.shootoutInfo.home.scores}-${lineScore.shootoutInfo.home.attempts})</li>
-            <li class="period total">${lineScore.teams.home.goals}</li>
+            <li class="period overTime">(${ls.shootoutInfo.home.scores}-${ls.shootoutInfo.home.attempts})</li>
+            <li class="period total">${ls.teams.home.goals}</li>
             `;
         }
     } 
 
     sectionHTML = `        
+    <button class="lineScore container" data-gameID="${activeGAME}">    
         <ul class="lineScore-header flex">
             <li class="gameStatus">${gameStatus}</li>
             <li class="period">1</li>
@@ -340,25 +279,26 @@ function displayLineScore(lineScore, gameID) {
         </ul>
         <hr class="header-line">
         <div class="lineScore-container">
-            <ul class="lineScore-away ${GAMES.find(x => x.game === gameID).away.winner} flex">
-                <li class="team">${TEAMS.find(x => x.fullName === lineScore.teams.away.team.name).abbreviation}</li>
-                <li class="period">${lineScore.periods[0].away.goals}</li>
-                <li class="period">${lineScore.periods[1].away.goals}</li>
-                <li class="period">${lineScore.periods[2].away.goals}</li>                        
+            <ul class="lineScore-away ${GAMES.previous.find(x => x.game === activeGAME).away.winner} flex">
+                <li class="team">${TEAMS.find(x => x.fullName === ls.teams.away.team.name).abbreviation}</li>
+                <li class="period">${ls.periods[0].away.goals}</li>
+                <li class="period">${ls.periods[1].away.goals}</li>
+                <li class="period">${ls.periods[2].away.goals}</li>                        
                 ${awayFinalHTML}
             </ul>          
             <hr class="team-line">
-            <ul class="lineScore-home ${GAMES.find(x => x.game === gameID).home.winner} flex">
-                <li class="team">${TEAMS.find(x => x.fullName === lineScore.teams.home.team.name).abbreviation}</li>
-                <li class="period">${lineScore.periods[0].home.goals}</li>
-                <li class="period">${lineScore.periods[1].home.goals}</li>
-                <li class="period">${lineScore.periods[2].home.goals}</li>                    
+            <ul class="lineScore-home ${GAMES.previous.find(x => x.game === activeGAME).home.winner} flex">
+                <li class="team">${TEAMS.find(x => x.fullName === ls.teams.home.team.name).abbreviation}</li>
+                <li class="period">${ls.periods[0].home.goals}</li>
+                <li class="period">${ls.periods[1].home.goals}</li>
+                <li class="period">${ls.periods[2].home.goals}</li>                    
                 ${homeFinalHTML}
             </ul>                    
-        </div>        
+        </div>
+    </button>
+        
     `
-   $(`[data-gameID="${gameID}"]`).html(sectionHTML);
-   $(`[data-gameID="${gameID}"]`).addClass('lineScore');    
+    return sectionHTML;
 }
 
 function goToGames() {
@@ -374,9 +314,64 @@ function goToSearch() {
 }
 
 function displayPage() {
-    // if the gameID to display was clicked display line score
-    // otherwise draw normal 
+    
+    let gameHTML = '';
+    let sectionHTML = `
+        <h2>Previous Game Results</h2>
+        <p class="instruction">Click on any game to see line score</p>
+        <hr class="header-line">
+    `;
+    
+    for (let game in GAMES.previous) {        
+        if (activeGAME == GAMES.previous[game].game) {
+            gameHTML = displayLineScore();            
+        } else {
+            gameHTML = createPreviousGameHTML(game);
+        }
+        sectionHTML += gameHTML
+    };
+    
+    $('.previous-container').html(sectionHTML);       
+
+    sectionHTML = `
+        <h2>Upcoming Game Schedule</h2>
+        <hr class="header-line">
+        `;    
+    
+    for (let game in GAMES.upcoming) {
+        gameHTML = createUpcomingGameHTML(game);
+        sectionHTML += gameHTML
+    };    
+    
+    $('.upcoming-container').html(sectionHTML);
 }
 
+function createPreviousGameHTML(game) {
+    let gameHTML = `
+    <button class="singleGame container" data-gameID="${GAMES.previous[game].game}">
+        <ul class="game-list">    
+            <li class="date">${GAMES.previous[game].date}</li>
+            <li class="away ${GAMES.previous[game].away.winner}">${GAMES.previous[game].away.team}  ${GAMES.previous[game].away.score}</li>
+            <li class="vs">@</li>
+            <li class="home ${GAMES.previous[game].home.winner}">${GAMES.previous[game].home.team}  ${GAMES.previous[game].home.score}</li>
+        </ul>
+    </button>            
+`
+return gameHTML;
+}
+
+function createUpcomingGameHTML(game) {
+    let gameHTML = `
+                <div class="futureGame container" data-gameID="${GAMES.upcoming[game].game}">
+                    <ul class="game-list">    
+                        <li class="date">${GAMES.upcoming[game].date}</li>
+                        <li class="away">${GAMES.upcoming[game].away}</li>
+                        <li class="vs">@</li>
+                        <li class="home">${GAMES.upcoming[game].home}</li>
+                    </ul>
+                </div>            
+                `;
+    return gameHTML;
+}
 
 $(pageSetup);
