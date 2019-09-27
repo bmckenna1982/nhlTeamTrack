@@ -47,6 +47,7 @@ async function trackTeam() {
     clearErrorDisplay();
     clearResults();
     clearGames();
+    activeGAME = '';
 
     let teamID = findTeamID();    
     if (teamID) {
@@ -348,7 +349,7 @@ function displayPage() {
 
 function createPreviousGameHTML(game) {
     let gameHTML = `
-    <button class="singleGame container" data-gameID="${GAMES.previous[game].game}">
+    <button class="singleGame container animation" data-gameID="${GAMES.previous[game].game}">
         <ul class="game-list">    
             <li class="date">${GAMES.previous[game].date}</li>
             <li class="away ${GAMES.previous[game].away.winner}">${GAMES.previous[game].away.team}  ${GAMES.previous[game].away.score}</li>

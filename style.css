@@ -117,8 +117,12 @@ hr {
     width: 100%;
     padding: 10px;
     color: #fff;
-    font-size: 16px;
+    font-size: 16px;    
 }
+
+/* .lineScore {
+    animation: 1s ease-out 0s 1 slideInFromLeft;
+} */
 
 .futureGame {
     display: flex;
@@ -193,6 +197,25 @@ button:hover {
     /* transform: scale(1.2); */
     font-size: 1.2em;
 } 
+
+@keyframes slideInFromLeft {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes slideOutToRight {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+  
 
 @media screen and (min-width: 768px) {
     h2 {
