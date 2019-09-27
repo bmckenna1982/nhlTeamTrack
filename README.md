@@ -4,7 +4,7 @@ API Hack Capstone - NHL Team Track - Get latest game results, see latest line sc
 
 
 ## Screenshot
-![Image of nhlTeamTrack app](https://github.com/bmckenna1982/nhlTeamTrack/images/screenCapture.PNG)
+![Image of nhlTeamTrack app](images/screenCapture.PNG)
 
 ## Built With
 * HTML
