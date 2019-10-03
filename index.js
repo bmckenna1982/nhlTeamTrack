@@ -3,8 +3,7 @@ const TEAMS = [];
 const GAMES = {};
 let activeGAME = '';
 
-function pageSetup() {
-    //call API and build team ID object    
+function pageSetup() {     
     getTeams();
     watchPage();
 }
@@ -89,7 +88,9 @@ function getPreviousGameResults(teamID) {
     return fetch(url)
         .then(response => {
             if (response.ok) {
-                return response.json();
+                let j = response.json();
+                console.log(j);
+                return j; //response.json();
             }
             throw new Error(response.statusText);
         })
@@ -146,12 +147,11 @@ function getRecentGames(previousGames) {
             date: game.date,
             away: {
                 team: game.games[0].teams.away.team.name,
-                abbreviation: TEAMS.find(x => x.fullName === game.games[0].teams.away.team.name).abbreviation,
                 score: game.games[0].teams.away.score,
                 winner: (whoWon === 'away') ? 'winner' : 'loser',           
             },
             home: {
-                team: game.games[0].teams.home.team.name,
+                team: game.games[0].teams.home.team.name,                
                 score: game.games[0].teams.home.score,
                 winner: (whoWon === 'home') ? 'winner' : 'loser',                           
             },             
@@ -236,7 +236,27 @@ function displayLineScore() {
     let sectionHTML = '';
     let gameStatus = '';
     let ls = GAMES.previous.find(x => x.game === activeGAME).lineScore
+    let homeAbbreviation = '';
+    let awayAbbreviation = '';
     
+   
+    //test for team in team list to enable creating abbreviation for international teams that aren't in team list
+    if (TEAMS.find(x => x.fullName === ls.teams.away.team.name) === false) {
+        let initials = ls.teams.away.team.name.match(/\b(\w)/g);
+        let awayAbbreviation = initials.join('');        
+    } else {
+        awayAbbreviation = TEAMS.find(x => x.fullName === ls.teams.away.team.name).abbreviation
+    };
+
+    if (TEAMS.find(x => x.fullName === ls.teams.home.team.name) === undefined) {
+        let initials = ls.teams.home.team.name.match(/\b(\w)/g);
+        homeAbbreviation = initials.join('');        
+    } else {
+        homeAbbreviation = TEAMS.find(x => x.fullName === ls.teams.home.team.name).abbreviation
+    }
+
+    
+
     if (ls.currentPeriod < 4) {
         gameStatus = ls.currentPeriodTimeRemaining;
         totalHTML = '<li class="period">Total</li>';
@@ -281,7 +301,7 @@ function displayLineScore() {
         <hr class="header-line">
         <div class="lineScore-container">
             <ul class="lineScore-away ${GAMES.previous.find(x => x.game === activeGAME).away.winner} flex">
-                <li class="team">${TEAMS.find(x => x.fullName === ls.teams.away.team.name).abbreviation}</li>
+                <li class="team">${awayAbbreviation}</li>
                 <li class="period">${ls.periods[0].away.goals}</li>
                 <li class="period">${ls.periods[1].away.goals}</li>
                 <li class="period">${ls.periods[2].away.goals}</li>                        
@@ -289,7 +309,7 @@ function displayLineScore() {
             </ul>          
             <hr class="team-line">
             <ul class="lineScore-home ${GAMES.previous.find(x => x.game === activeGAME).home.winner} flex">
-                <li class="team">${TEAMS.find(x => x.fullName === ls.teams.home.team.name).abbreviation}</li>
+                <li class="team">${homeAbbreviation}</li>
                 <li class="period">${ls.periods[0].home.goals}</li>
                 <li class="period">${ls.periods[1].home.goals}</li>
                 <li class="period">${ls.periods[2].home.goals}</li>                    

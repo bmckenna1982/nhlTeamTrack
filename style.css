@@ -5,8 +5,6 @@
 
 body {
     margin: 0;
-    /* background-color: #777 */
-    
     background: -webkit-linear-gradient(rgba(28, 28, 31, 0.7), rgba(28, 28, 31, 0.8)),
     -webkit-linear-gradient(rgba(28, 28, 31, 0.8), rgba(28, 28, 31, 0.7)),
     url('images/nhl-team-logo-calendar.jpg');
@@ -16,9 +14,8 @@ body {
         -webkit-background-size: cover;
         -moz-background-size: cover;
         -o-background-size: cover;
-        background-size: cover;
-    /* background-color: rgba(28, 28, 31, 1); */
-    font-family: "Archivo Narrow", Helvetica, sans-serif;
+        background-size: cover;    
+    font-family: 'Archivo Narrow', Helvetica, sans-serif;
     letter-spacing: 1px;
     min-height: 100vh;
     display: flex;
@@ -38,8 +35,7 @@ a {
     text-decoration: none;
 }
 
-main {
-    /* min-height: calc(100vh - 50px); */
+main {    
     margin: 0 auto;        
     max-width: 750px;
     color: #fff;
@@ -62,9 +58,7 @@ main {
     text-align: center;    
 }
 
-.search-container {
-    /* height: 400px; */
-    /* height: calc(100vh - 212px); */
+.search-container {    
     flex-direction: column;
 }
 
@@ -82,11 +76,6 @@ fieldset {
 input {
     margin: 10px auto;
     padding: 5px;      
-}
-
-.container {
-    /* border-top: solid 1px #888;
-    border-bottom: solid 1px #888; */
 }
 
 hr {
@@ -119,10 +108,6 @@ hr {
     color: #fff;
     font-size: 16px;    
 }
-
-/* .lineScore {
-    animation: 1s ease-out 0s 1 slideInFromLeft;
-} */
 
 .futureGame {
     display: flex;
@@ -193,29 +178,9 @@ hr {
     font-size: 14px;
 }
 
-button:hover {
-    /* transform: scale(1.2); */
+button:hover {    
     font-size: 1.2em;
 } 
-
-@keyframes slideInFromLeft {
-    0% {
-      transform: translateX(-100%);
-    }
-    100% {
-      transform: translateX(0);
-    }
-  }
-
-  @keyframes slideOutToRight {
-    0% {
-      transform: translateX(0);
-    }
-    100% {
-      transform: translateX(100%);
-    }
-  }
-  
 
 @media screen and (min-width: 768px) {
     h2 {
@@ -234,6 +199,5 @@ button:hover {
     .lineScore, .singleGame, .futureGame {
         flex: 1;
         height: 125px;
-        alig
     }
 }
