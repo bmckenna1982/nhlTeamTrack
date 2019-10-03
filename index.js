@@ -242,7 +242,7 @@ function displayLineScore() {
    
     //test for team in team list to enable creating abbreviation for international teams that aren't in team list
     if (TEAMS.find(x => x.fullName === ls.teams.away.team.name) === false) {
-        let initials = ls.teams.away.team.name.match(/\b(\w)/g);
+        let initials = ls.teams.away.team.name.match(/\b(\w)/g);git 
         let awayAbbreviation = initials.join('');        
     } else {
         awayAbbreviation = TEAMS.find(x => x.fullName === ls.teams.away.team.name).abbreviation
