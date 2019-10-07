@@ -316,6 +316,7 @@ function displayLineScore() {
                 ${homeFinalHTML}
             </ul>                    
         </div>
+        <div class="down-arrow"></div>
     </button>
         
     `
@@ -376,6 +377,7 @@ function createPreviousGameHTML(game) {
             <li class="vs">@</li>
             <li class="home ${GAMES.previous[game].home.winner}">${GAMES.previous[game].home.team}  ${GAMES.previous[game].home.score}</li>
         </ul>
+        <div class="down-arrow"></div>
     </button>            
 `
 return gameHTML;

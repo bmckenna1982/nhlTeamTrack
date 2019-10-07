@@ -89,29 +89,33 @@ hr {
     font-weight: 600;
 }
 
-.previous-container, .upcoming-container {
-    flex-direction: column;
-    justify-content: center;
+.previous-container, .upcoming-container {   
     flex-wrap: wrap;
     margin: 10px;
 }
 
 .singleGame, .futureGame, .lineScore {
     background: none;    
-    border: 2px solid #fff;
-    border-width: 2px;
-    border-left: none;
-    border-top: none;
-    border-right: none;    
+    border: none ;    
     width: 100%;
     padding: 10px;
     color: #fff;
     font-size: 16px;    
 }
 
-.futureGame {
+.lineScore {   
+    /* animation: slide-up 2s; */
+    animation-duration: 2s;
+    animation-fill-mode: both;
+    /* max-height: 500px;
+    transition: max-height 2s ease-in; */
+    animation-name: fadeInUp
+}
+
+.singleGame, .futureGame {
     display: flex;
     flex-direction: column;
+    align-items: center;
     justify-content: center;
 }
 
@@ -181,6 +185,46 @@ hr {
 button:hover {    
     font-size: 1.2em;
 } 
+
+.down-arrow {
+    width: 2em;
+    height: 2em;
+    opacity: .4;
+    margin: 0 auto;
+    border-bottom: .15em solid #FFF;
+    border-left: .15em solid #FFF;
+    transform: rotate(-45deg);
+    animation: pointDown 2s ease infinite;
+}
+
+@keyframes pointDown {
+    0% { transform: translate(0em, 0em) rotate(-45deg); }
+    50% { transform: translate(0em, .5em) rotate(-45deg); }
+    100% { transform: translate(0em, 0em) rotate(-45deg); }
+}
+
+@keyframes fadeInUp {
+    from {
+      opacity: 0;
+      -webkit-transform: translate3d(0, 50%, 0);
+      transform: translate3d(0, 50%, 0);
+    }
+  
+    to {
+      opacity: 1;
+      -webkit-transform: translate3d(0, 0, 0);
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+@keyframes slide-up {
+    from {
+        height: 0%;
+    }
+    to {
+        height: 100%;
+    }
+}
 
 @media screen and (min-width: 768px) {
     h2 {
